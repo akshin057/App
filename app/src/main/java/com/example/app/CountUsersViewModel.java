@@ -2,6 +2,7 @@ package com.example.app;
 
 import android.widget.ArrayAdapter;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.lang.reflect.Array;
@@ -9,22 +10,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CountUsersViewModel extends ViewModel {
-    private List<User> users = new ArrayList<>();
-    private ArrayAdapter adapter;
+    private final MutableLiveData<ArrayList<User>> users;
+    private ArrayAdapter<User> adapter;
 
-    public void setAdapter(ArrayAdapter adapter) {
-        this.adapter = adapter;
+    public CountUsersViewModel() {
+        users = new MutableLiveData<>(new ArrayList<>());
     }
 
     public void add(User user) {
-        users.add(user);
+        ArrayList<User> currentUsers = users.getValue();
+        if (currentUsers != null) {
+            currentUsers.add(user);
+            users.setValue(currentUsers);
+            if (adapter != null) {
+                adapter.add(user);
+            }
+        }
     }
 
-    public List<User> getUsers() {
+    public MutableLiveData<ArrayList<User>> getUsers() {
         return users;
     }
 
-    public ArrayAdapter getAdapter() {
+    public void setAdapter(ArrayAdapter<User> adapter) {
+        this.adapter = adapter;
+    }
+
+    public ArrayAdapter<User> getAdapter() {
         return adapter;
     }
 }

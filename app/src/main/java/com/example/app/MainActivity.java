@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     EditText phoneET;
     Button saveBTN;
     CountUsersViewModel countUsersViewModel;
-    ListView users;
+    ListView usersLV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,18 +56,21 @@ public class MainActivity extends AppCompatActivity {
             }
 
             countUsersViewModel.add(user);
-            countUsersViewModel.getAdapter().notifyDataSetChanged();
             nameET.getText().clear();
             surnameET.getText().clear();
             addressET.getText().clear();
             phoneET.getText().clear();
         });
 
-        users.setOnItemClickListener((parent, view, position, id) -> {
+        usersLV.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(MainActivity.this, SecondActivity.class);
             User user = (User) countUsersViewModel.getAdapter().getItem(position);
             intent.putExtra("user", user);
             startActivity(intent);
+        });
+
+        countUsersViewModel.getUsers().observe(this, users -> {
+            usersLV.setAdapter(countUsersViewModel.getAdapter());
         });
 
     }
@@ -78,10 +81,19 @@ public class MainActivity extends AppCompatActivity {
         addressET = findViewById(R.id.addressET);
         phoneET = findViewById(R.id.phoneET);
         saveBTN = findViewById(R.id.saveBTN);
-        users = findViewById(R.id.usersLV);
+        usersLV = findViewById(R.id.usersLV);
+
 
         countUsersViewModel = new ViewModelProvider(this).get(CountUsersViewModel.class);
-        countUsersViewModel.setAdapter(new ArrayAdapter(this, android.R.layout.simple_list_item_1, countUsersViewModel.getUsers()));
-        users.setAdapter(countUsersViewModel.getAdapter());
+        ArrayAdapter<User> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
+        countUsersViewModel.setAdapter(adapter);
+        usersLV.setAdapter(countUsersViewModel.getAdapter());
+
+        ArrayList<User> existingUsers = countUsersViewModel.getUsers().getValue();
+
+        if (existingUsers != null) {
+            adapter.addAll(existingUsers);
+        }
+
     }
 }
