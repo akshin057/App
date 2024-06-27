@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     Button saveBTN;
     CountUsersViewModel countUsersViewModel;
     ListView usersLV;
+    ArrayAdapter<User> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             countUsersViewModel.add(user);
+            adapter.notifyDataSetChanged();
             nameET.getText().clear();
             surnameET.getText().clear();
             addressET.getText().clear();
@@ -64,13 +66,13 @@ public class MainActivity extends AppCompatActivity {
 
         usersLV.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(MainActivity.this, SecondActivity.class);
-            User user = (User) countUsersViewModel.getAdapter().getItem(position);
+            User user = (User) countUsersViewModel.getUsersList().get(position);
             intent.putExtra("user", user);
             startActivity(intent);
         });
 
         countUsersViewModel.getUsers().observe(this, users -> {
-            usersLV.setAdapter(countUsersViewModel.getAdapter());
+            usersLV.setAdapter(adapter);
         });
 
     }
@@ -83,17 +85,10 @@ public class MainActivity extends AppCompatActivity {
         saveBTN = findViewById(R.id.saveBTN);
         usersLV = findViewById(R.id.usersLV);
 
-
         countUsersViewModel = new ViewModelProvider(this).get(CountUsersViewModel.class);
-        ArrayAdapter<User> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
-        countUsersViewModel.setAdapter(adapter);
-        usersLV.setAdapter(countUsersViewModel.getAdapter());
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, countUsersViewModel.getUsersList());
 
-        ArrayList<User> existingUsers = countUsersViewModel.getUsers().getValue();
-
-        if (existingUsers != null) {
-            adapter.addAll(existingUsers);
-        }
+        usersLV.setAdapter(adapter);
 
     }
 }

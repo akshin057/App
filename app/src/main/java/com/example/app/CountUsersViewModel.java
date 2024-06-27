@@ -11,20 +11,17 @@ import java.util.List;
 
 public class CountUsersViewModel extends ViewModel {
     private final MutableLiveData<ArrayList<User>> users;
-    private ArrayAdapter<User> adapter;
+    private final ArrayList<User> usersList;
 
     public CountUsersViewModel() {
-        users = new MutableLiveData<>(new ArrayList<>());
+        usersList = new ArrayList<>();
+        users = new MutableLiveData<>(usersList);
     }
 
     public void add(User user) {
-        ArrayList<User> currentUsers = users.getValue();
-        if (currentUsers != null) {
-            currentUsers.add(user);
-            users.setValue(currentUsers);
-            if (adapter != null) {
-                adapter.add(user);
-            }
+        if (user != null) {
+            usersList.add(user);
+            users.setValue(usersList);
         }
     }
 
@@ -32,11 +29,7 @@ public class CountUsersViewModel extends ViewModel {
         return users;
     }
 
-    public void setAdapter(ArrayAdapter<User> adapter) {
-        this.adapter = adapter;
-    }
-
-    public ArrayAdapter<User> getAdapter() {
-        return adapter;
+    public ArrayList<User> getUsersList() {
+        return usersList;
     }
 }
